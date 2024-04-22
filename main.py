@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Установка соединения с базой данных
 conn = psycopg2.connect(
-    dbname="amotors_db",
+    dbname="AshimbekovMotors_db",
     user="postgres",
     password="nurik",
     host="localhost",
@@ -169,6 +169,7 @@ def deal_success():
 
 
 # Маршрут для обновления доступности автомобиля
+# TODO Подумать как реализовать обновление статуса автомобиля
 @app.route('/update_availability', methods=['POST'])
 def update_availability():
     if request.method == 'POST':
