@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить клиента</title>
+</head>
+<body>
+    <h2>Добавить клиента</h2>
+    <form action="/add_client" method="post">
+        <label for="first_name">Имя:</label>
+        <input type="text" id="first_name" name="first_name" required><br><br>
+        
+        <label for="last_name">Фамилия:</label>
+        <input type="text" id="last_name" name="last_name" required><br><br>
+        
+        <label for="middle_name">Отчество:</label>
+        <input type="text" id="middle_name" name="middle_name"><br><br>
+        
+        <label for="phone">Телефон:</label>
+        <input type="tel" id="phone" name="phone" required><br><br>
+        
+        <label for="iin">ИИН:</label>
+        <input type="text" id="iin" name="iin" required><br><br>
+        
+        <input type="submit" value="Добавить">
+    </form>
+</body>
+</html>

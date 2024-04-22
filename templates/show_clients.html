@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все клиенты</title>
+</head>
+<body>
+    <h1>Все клиенты</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Отчество</th>
+            <th>Телефон</th>
+            <th>ИИН</th>
+        </tr>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client[0] }}</td>
+            <td>{{ client[1] }}</td>
+            <td>{{ client[2] }}</td>
+            <td>{{ client[3] }}</td>
+            <td>{{ client[4] }}</td>
+            <td>{{ client[5] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Начать сделку</title>
+</head>
+<body>
+    <h2>Начать сделку</h2>
+    <form action="/start_deal" method="post">
+        <label for="client">Клиент:</label>
+        <select id="client" name="client">
+            {% for client in clients %}
+                <option value="{{ client[0] }}">{{ client[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="manager">Менеджер:</label>
+        <select id="manager" name="manager">
+            {% for manager in managers %}
+                <option value="{{ manager[0] }}">{{ manager[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="car">Автомобиль:</label>
+        <select id="car" name="car">
+            {% for car in cars %}
+                <option value="{{ car[0] }}">{{ car[1] }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="date">Дата сделки:</label>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <label for="insurance">Страховка:</label>
+        <select id="insurance" name="insurance" onchange="showInsuranceFields(this)">
+            <option value="False">Нет</option>
+            <option value="True">Да</option>
+        </select><br><br>
+        <div id="insuranceFields" style="display:none;">
+            <label for="insurance_type">Тип страховки:</label>
+            <input type="text" id="insurance_type" name="insurance_type"><br><br>
+        </div>
+        <label for="equipment">Комплектация:</label>
+        <input type="text" id="equipment" name="equipment" required><br><br>
+
+        <label for="transaction_amount">Сумма транзакции:</label>
+        <input type="number" id="transaction_amount" name="transaction_amount" required><br><br>
+
+        <label for="credit">Кредит:</label>
+        <select id="credit" name="credit">
+            <option value="True">Да</option>
+            <option value="False">Нет</option>
+        </select><br><br>
+        
+        <!-- <label for="insurance">Страховка:</label>
+        <select id="insurance" name="insurance" onchange="showInsuranceFields(this)">
+            <option value="False">Нет</option>
+            <option value="True">Да</option>
+        </select><br><br> -->
+    
+
+        <input type="submit" value="Начать сделку">
+    </form>
+
+    
+
+    <script>
+        function showInsuranceFields(select) {
+            var insuranceFields = document.getElementById("insuranceFields");
+            if (select.value === "True") {
+                insuranceFields.style.display = "block";
+            } else {
+                insuranceFields.style.display = "none";
+            }
+        }
+
+        function updateTransactionAmount() {
+        var carPrice = parseFloat(document.getElementById("car_price").value);
+        var transactionAmount = carPrice;
+
+        if (document.getElementById("insurance").value === "True") {
+            transactionAmount += 100; // Пример добавления стоимости страховки к сумме транзакции
+        }
+        if (document.getElementById("credit").value === "True") {
+            transactionAmount *= 1.05; // Пример добавления процента при кредите к сумме транзакции
+        }
+
+        document.getElementById("transaction_amount").value = transactionAmount.toFixed(2);
+    }
+
+        // Вызываем функцию updateTransactionAmount() при загрузке страницы и при изменении значений полей страховки и кредита
+        window.onload = updateTransactionAmount;
+        document.getElementById("insurance").onchange = updateTransactionAmount;
+        document.getElementById("credit").onchange = updateTransactionAmount;
+
+        function updateAvailability() {
+        var carId = document.getElementById("car").value;
+
+        // Отправляем AJAX-запрос на сервер Flask для обновления доступности автомобиля
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/update_availability", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                // Обработка успешного ответа
+                console.log("Доступность автомобиля успешно обновлена");
+            }
+        };
+        xhr.send(JSON.stringify({carId: carId}));
+    }
+
+    // Вызываем функцию updateAvailability() при изменении выбора автомобиля
+    document.getElementById("car").onchange = updateAvailability;
+    </script>
+
+</body>
+</html>

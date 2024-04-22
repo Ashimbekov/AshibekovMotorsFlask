@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все автомобили</title>
+</head>
+<body>
+    <h1>Все автомобили</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Марка</th>
+            <th>Модель</th>
+            <th>Год</th>
+            <th>Цвет</th>
+            <th>VIN</th>
+            <th>Цена</th>
+            <th>Доступность</th>
+        </tr>
+        {% for car in cars %}
+        <tr>
+            <td>{{ car[0] }}</td>
+            <td>{{ car[1] }}</td>
+            <td>{{ car[2] }}</td>
+            <td>{{ car[3] }}</td>
+            <td>{{ car[4] }}</td>
+            <td>{{ car[5] }}</td>
+            <td>{{ car[6] }}</td>
+            <td>{{ car[7] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

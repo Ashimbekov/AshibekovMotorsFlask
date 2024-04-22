@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить автомобиль</title>
+</head>
+<body>
+    <h2>Добавить автомобиль</h2>
+    <form action="/add_car" method="post">
+        <label for="brand">Марка:</label>
+        <input type="text" id="brand" name="brand" required><br><br>
+        
+        <label for="model">Модель:</label>
+        <input type="text" id="model" name="model" required><br><br>
+        
+        <label for="year">Год:</label>
+        <input type="text" id="year" name="year" required><br><br>
+        
+        <label for="color">Цвет:</label>
+        <input type="text" id="color" name="color" required><br><br>
+        
+        <label for="vin">VIN:</label>
+        <input type="text" id="vin" name="vin" required><br><br>
+        
+        <label for="price">Цена:</label>
+        <input type="text" id="price" name="price" required><br><br>
+
+        <label for="availability">Доступность:</label>
+        <select id="availability" name="availability">
+            <option value="в наличии">В наличии</option>
+            <option value="продано">Продано</option>
+            <option value="зарезервировано">Зарезервировано</option>
+        </select><br><br>
+
+        <!-- Добавьте другие поля по вашему выбору -->
+        
+        <input type="submit" value="Добавить">
+    </form>
+</body>
+</html>
