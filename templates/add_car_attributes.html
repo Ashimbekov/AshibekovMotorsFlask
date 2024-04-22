@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление дополнительных атрибутов автомобиля</title>
+</head>
+<body>
+    <h1>Добавление дополнительных атрибутов автомобиля</h1>
+    
+    <form action="/add_car_attributes/{{ car_id }}" method="post">
+        <label for="seats_count">Количество мест:</label>
+        <input type="number" id="seats_count" name="seats_count" required><br><br>
+        
+        <label for="trunk_volume">Объем багажника:</label>
+        <input type="text" id="trunk_volume" name="trunk_volume" required><br><br>
+        
+        <label for="horse_power">Мощность двигателя:</label>
+        <input type="text" id="horse_power" name="horse_power" required><br><br>
+        
+        <label for="engine_volume">Объем двигателя:</label>
+        <input type="text" id="engine_volume" name="engine_volume" required><br><br>
+        
+        <label for="car_type">Тип автомобиля:</label>
+        <input type="text" id="car_type" name="car_type" required><br><br>
+        
+        <input type="submit" value="Добавить">
+    </form>
+</body>
+</html>
