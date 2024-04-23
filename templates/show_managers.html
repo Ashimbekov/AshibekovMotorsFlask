@@ -11,7 +11,7 @@
 <body>
     {% include 'navbar.html' %}
     <div class="">
-        <h1 class="mt-5 mb-4">Все клиенты</h1>
+        <h1 class="mt-5 mb-4">Все Сотрудники</h1>
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead class="thead-dark">
@@ -20,19 +20,19 @@
                         <th>Имя</th>
                         <th>Фамилия</th>
                         <th>Отчество</th>
-                        <th>Телефон</th>
-                        <th>ИИН</th>
+                        <th>Должность</th>
+                        <th>Количество сделок</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for client in clients %}
+                    {% for manager in managers %}
                     <tr>
-                        <td>{{ client[0] }}</td>
-                        <td>{{ client[1] }}</td>
-                        <td>{{ client[2] }}</td>
-                        <td>{{ client[3] }}</td>
-                        <td>{{ client[4] }}</td>
-                        <td>{{ client[5] }}</td>
+                        <td>{{ manager[0] }}</td>
+                        <td>{{ manager[1] }}</td>
+                        <td>{{ manager[2] }}</td>
+                        <td>{{ manager[3] }}</td>
+                        <td>{{ manager[5] }}</td>
+                        <td>{{ manager[4] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

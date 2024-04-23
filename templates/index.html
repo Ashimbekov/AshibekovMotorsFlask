@@ -8,27 +8,71 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <style>
 
-        .btn-container {
-          display: flex;
-          flex-direction: column;
-          align-items: start;
-          
-        }
         .btn-container a {
           margin-bottom: 20px;
           width: 240px;
         }
+
+        .circle-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.counter {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid #3498db;
+    background-color: #f9f9f9;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+.counter:hover {
+    transform: scale(1.05); /* Немного увеличиваем при наведении */
+}
+
+.counter h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+}
+
+.counter h3 {
+    margin: 5px 0 0;
+    font-size: 24px;
+    color: #3498db;
+}
       </style>
 </head>
 <body>
     
     {% include 'navbar.html' %}
-    <div class="mt-4 btn-container">
-      <a href="/add_client_form" class="btn btn-primary">Добавить клиента</a>
-      <a href="/add_car_form" class="btn btn-primary">Добавить авто</a>
-      <a href="/show_clients" class="btn btn-primary">Показать всех клиентов</a>
-      <a href="/show_cars" class="btn btn-primary">Показать все автомобили</a>
-      <a href="/select_car" class="btn btn-primary">Выбрать автомобиль</a>
-    </div>
+    <div class="mt-4 d-flex ">
+      <div class="circle-counter">
+          <div class="counter">
+            <h3>{{ total_deals }}</h3>
+              <h2>Общее количество сделок</h2>
+          </div>
+      </div>
+      <div class="circle-counter px-4">
+          <div class="counter">
+            <h3>{{ deals_today }}</h3>
+              <h2>Сегодня продано автомобилей</h2>
+          </div>
+      </div>
+      <div class="circle-counter px-4">
+          <div class="counter">
+            <h3>{{ deals_yesterday }}</h3>
+              <h2>Вчера продано автомобилей</h2>
+          </div>
+      </div>
+  </div>
 </body>
 </html>

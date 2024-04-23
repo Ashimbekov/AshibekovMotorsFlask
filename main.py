@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 import psycopg2
+from datetime import date
+import pdfkit
 
 app = Flask(__name__)
 
 conn = psycopg2.connect(
-    dbname="AshimbekovMotors_db",
+    dbname="amotors_db",
     user="postgres",
     password="nurik",
     host="localhost",
@@ -15,7 +17,19 @@ cur = conn.cursor()
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    cur.execute("SELECT SUM(dealsCount) FROM Manager")
+    total_deals = cur.fetchone()[0]
+
+    # Получаем текущую дату
+    today = date.today()
+
+    cur.execute("SELECT COUNT(*) FROM deals WHERE date = %s", (today,))
+    deals_today = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM deals WHERE date = CURRENT_DATE - INTERVAL '1 day';")
+    deals_yesterday = cur.fetchone()[0]
+    return render_template('index.html', total_deals=total_deals, deals_today=deals_today, deals_yesterday=deals_yesterday)
+
 
 @app.route('/deals')
 def deals():
@@ -28,6 +42,14 @@ def reports():
 @app.route('/cars')
 def cars():
     return render_template('cars.html')
+
+@app.route('/managers')
+def managers():
+    return render_template('managers.html')
+
+@app.route('/clients')
+def clients():
+    return render_template('clients.html')
 
 @app.route('/add_car_form')
 def add_car_form():
@@ -114,7 +136,11 @@ def add_manager():
 def manager_success():
     return render_template('manager_success.html')
 
-
+@app.route('/show_managers')
+def show_managers():
+    cur.execute("SELECT * FROM Manager")
+    managers = cur.fetchall()
+    return render_template('show_managers.html', managers=managers)
 
 @app.route('/select_car', methods=['GET'])
 def select_car():
@@ -261,6 +287,119 @@ def start_deal():
 def deal_success():
     return 'Сделка успешно добавлена!'
 
+@app.route('/show_deals')
+def show_deals():
+    cur.execute("SELECT * FROM deals")
+    deals = cur.fetchall()
+    return render_template('show_deals.html', deals = deals)
+
+@app.route('/sales_receipt/<int:deal_id>')
+def sales_receipt(deal_id):
+    cur.execute("""
+        SELECT 
+            deals.id,
+            clients.id AS client_id,
+            CONCAT(clients.lastname, ' ', SUBSTRING(clients.firstname, 1, 1), '.', SUBSTRING(clients.middlename, 1, 1)) AS client_name,
+            deals.managerid,
+            CONCAT(manager.lastname, '.', SUBSTRING(manager.firstname, 1, 1), '.', SUBSTRING(manager.middlename, 1, 1)) AS manager_name,
+            cars.brand,
+            cars.model,
+            deals.date,
+            deals.insurance,
+            deals.equipment,
+            deals.transactionAmount,
+            deals.credit
+        FROM 
+            deals
+        JOIN 
+            clients ON deals.clientid = clients.id
+        JOIN
+            manager ON deals.managerid = manager.id
+        JOIN
+            cars ON deals.carid = cars.id
+        WHERE
+            deals.id = %s
+    """, (deal_id,))
+    sales_data = cur.fetchone()
+
+    if sales_data:
+        return render_template('sales_receipt.html', 
+                               deal_id=sales_data[0], 
+                               client_id=sales_data[1], 
+                               client_name=sales_data[2], 
+                               manager_id=sales_data[3], 
+                               manager_name=sales_data[4], 
+                               car_brand=sales_data[5], 
+                               car_model=sales_data[6], 
+                               date=sales_data[7], 
+                               insurance=sales_data[8], 
+                               equipment=sales_data[9], 
+                               transaction_amount=sales_data[10], 
+                               credit=sales_data[11])
+    else:
+        return "Данные о продаже не найдены"
+
+    cur.close()
+    conn.close()
+
+    return render_template('sales_receipt.html', **sales_data)
+
+@app.route('/select_orders')
+def select_orders():
+    cur.execute("SELECT id FROM Deals")
+    deals = cur.fetchall()
+    return render_template('select_orders.html', deals=deals)
+
+
+@app.route('/show_order/<int:deal_id>')
+def show_order(deal_id):
+    cur.execute("""
+        SELECT 
+            deals.id,
+            clients.id AS client_id,
+            CONCAT(clients.lastname, ' ', SUBSTRING(clients.firstname, 1, 1), '.', SUBSTRING(clients.middlename, 1, 1)) AS client_name,
+            deals.managerid,
+            CONCAT(manager.lastname, '.', SUBSTRING(manager.firstname, 1, 1), '.', SUBSTRING(manager.middlename, 1, 1)) AS manager_name,
+            cars.id AS car_id,
+            cars.brand,
+            cars.model,
+            deals.date,
+            deals.insurance,
+            deals.equipment,
+            deals.transactionAmount,
+            deals.credit
+        FROM 
+            deals
+        JOIN 
+            clients ON deals.clientid = clients.id
+        JOIN
+            manager ON deals.managerid = manager.id
+        JOIN
+            cars ON deals.carid = cars.id
+        WHERE
+            deals.id = %s
+    """, (deal_id,))
+    order = cur.fetchone()
+
+    if order:
+        transaction_amount = float(order[11])
+        formatted_transaction_amount = "{:,.0f}".format(transaction_amount).replace(",", " ")
+        return render_template('orders.html', 
+                               deal_id=order[0], 
+                               client_id=order[1], 
+                               client_name=order[2], 
+                               manager_id=order[3], 
+                               manager_name=order[4],
+                               car_id=order[5], 
+                               car_brand=order[6], 
+                               car_model=order[7], 
+                               date=order[8], 
+                               insurance=order[9], 
+                               equipment=order[10], 
+                               transaction_amount=formatted_transaction_amount, 
+                               credit=order[12])
+    else:
+        return "Данные о продаже не найдены"
 
 
 # TODO Проработать обновление статуса автомобиля ПРОДАН/В ОЖИДАНИИ/ДОСТУПЕН
