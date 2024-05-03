@@ -6,7 +6,7 @@ import pdfkit
 app = Flask(__name__)
 
 conn = psycopg2.connect(
-    dbname="amotors_db",
+    dbname="AshimbekovMotors_db",
     user="postgres",
     password="nurik",
     host="localhost",
@@ -171,12 +171,73 @@ def add_car_attributes(car_id):
 
     return render_template('add_car_attributes.html', car_id=car_id)
 
+
+
+
 # TODO Добавить условие если в выбранном автомобили уже есть значение то, выдать предупрждение что поля заполнены
 
 @app.route('/carAttributes_success')
 def carAttributes_success():
     return 'Атрибуты автомобиля успешно добавлены!'
 
+
+@app.route('/add_car_features', methods=['GET', 'POST'])
+def add_car_features():
+    if request.method == 'POST':
+        car_id = request.form['car_id']
+        rugs = request.form['rugs']
+        sun_roof = request.form['sun_roof']
+        wireless_charging = request.form['wireless_charging']
+        hydro_stoics = request.form['hydro_stoics']
+        multimedia = request.form['multimedia']
+        cruise_control = request.form['cruise_control']
+        
+        cur.execute("""
+            INSERT INTO CarFeatures (carId, rugs, sunRoof, wirelessCharging, hydroStoics, multimedia, cruiseControl)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (car_id, rugs, sun_roof, wireless_charging, hydro_stoics, multimedia, cruise_control))
+        
+        # Если требуется, выполните коммит транзакции
+        conn.commit()
+        
+        # return redirect('/')  # Перенаправление на главную страницу или другую страницу по вашему выбору
+        return redirect(url_for('carFeatures_success'))
+    
+    cur.execute("SELECT id, model, brand FROM Cars")
+    cars = cur.fetchall()
+    # Если метод запроса GET, отобразите HTML-форму для добавления функций автомобиля
+    return render_template('add_car_features.html', cars=cars)
+
+@app.route('/carFeatures_success')
+def carFeatures_success():
+    return 'Атрибуты автомобиля успешно добавлены!'
+
+@app.route('/show_cars_books')
+def show_car_book():
+    # Получаем параметры запроса из URL-адреса
+    sort_by = request.args.get('sort_by')
+    filter_by = request.args.get('filter_by')
+
+    # Формируем запрос к базе данных в зависимости от параметров запроса
+    query = "SELECT id, brand, model, year, price, image_url FROM Cars"
+    if filter_by:
+        query += f" WHERE brand = '{filter_by}'"  # Пример фильтрации по бренду
+    if sort_by:
+        # Разбиваем параметр сортировки на направление и поле
+        sort_direction, sort_field = sort_by.split('_')
+        # Формируем часть SQL-запроса для сортировки
+        if sort_direction == 'price':
+            query += f" ORDER BY price {'ASC' if sort_field == 'asc' else 'DESC'}"
+        elif sort_direction == 'year':
+            query += f" ORDER BY year {'ASC' if sort_field == 'asc' else 'DESC'}"
+
+    # Выполняем запрос к базе данных
+    cur.execute(query)
+    cars = cur.fetchall()
+
+    # conn.close() - не закрываем соединение, чтобы сохранить курсор открытым
+
+    return render_template('show_car_book.html', cars=cars)
 
 @app.route('/show_car_attributes/<int:car_id>')
 def show_car_details(car_id):
@@ -266,11 +327,11 @@ def start_deal():
         credit = request.form['credit']
 
         # Костыльная транзакция процентов #TODO Проработать сумму продажи
-        car_price = cur.execute("SELECT price FROM Cars WHERE id = %s", (car_id,))
-        if insurance == 'True':
-            transaction_amount += 100 
-        if credit == 'True':
-            transaction_amount *= 1.05 
+        # car_price = cur.execute("SELECT price FROM Cars WHERE id = %s", (car_id,))
+        # if insurance == 'True':
+        #     transaction_amount += 100 
+        # if credit == 'True':
+        #     transaction_amount *= 1.05 
 
         # Обновление количества сделок менеджера
         cur.execute("UPDATE Manager SET dealsCount = dealsCount + 1 WHERE id = %s", (manager_id,))
@@ -400,6 +461,99 @@ def show_order(deal_id):
                                credit=order[12])
     else:
         return "Данные о продаже не найдены"
+
+@app.route('/show_cartype/<int:deal_id>')
+# def show_cartype(deal_id):
+#     cur.execute("""
+#         SELECT 
+#             d.id,
+#             d.clientid,
+#             d.managerid,
+#             d.carid,
+#             d.date,
+#             d.insurance,
+#             d.equipment,
+#             d.transactionAmount,
+#             d.credit
+#         FROM 
+#             deals d
+#         JOIN 
+#             carAttributes cs ON d.carid = cs.carid
+#         WHERE 
+#             cs.carType = 'Седан'
+#             AND d.id = %sж
+#     """, (deal_id,))
+#     order = cur.fetchone()
+
+#     if order:
+#         transaction_amount = float(order[7])
+#         formatted_transaction_amount = "{:,.0f}".format(transaction_amount).replace(",", " ")
+#         return render_template('show_cartype.html', 
+#                                deal_id=order[0], 
+#                                client_id=order[1], 
+#                                manager_id=order[2],
+#                                car_id=order[3], 
+#                                date=order[4], 
+#                                insurance=order[5], 
+#                                equipment=order[6], 
+#                                transaction_amount=formatted_transaction_amount, 
+#                                credit=order[8]
+#     else:
+#         return "Данные о продаже не найдены"
+
+@app.route('/reports/select_car_type')
+def select_car_type():
+    return render_template('report_select_cartype.html')
+
+@app.route('/reports/select_car_type/process_car_type', methods=['POST'])
+def process_car_type():
+    car_type = request.form['car_type']
+    cur.execute("""
+        SELECT deals.id,
+            deals.clientid,
+            deals.managerid,
+            deals.carid,
+            deals.date,
+            deals.insurance,
+            deals.equipment,
+            deals.transactionAmount,
+            deals.credit
+        FROM deals, CarAttributes
+        WHERE deals.carid = CarAttributes.carid 
+        AND CarAttributes.carType = %s
+    """, (car_type,))
+    results = cur.fetchall()
+    return render_template('report_show_cartype.html', results=results, cartype=car_type)
+
+@app.route('/reports/show_clients_with_credit')
+def show_clients_with_credit():
+    cur.execute("""
+        SELECT credit.dealId,
+            clients.firstName,
+            clients.lastName,
+            clients.middleName,
+            credit.loanAmount
+        FROM deals
+        JOIN clients ON deals.clientId = clients.id
+        JOIN credit ON deals.id = credit.dealId
+    """)
+    results = cur.fetchall()
+    return render_template('report_show_clients_with_credit.html', results=results)
+
+@app.route('/reports/show_clients_with_insurance')
+def show_clients_with_insurance():
+    cur.execute("""
+        SELECT insurance.dealId,
+            clients.firstName,
+            clients.lastName,
+            clients.middleName,
+            insurance.insuranseType
+        FROM deals
+        JOIN clients ON deals.clientId = clients.id
+        JOIN insurance ON deals.id = insurance.dealId
+    """)
+    results = cur.fetchall()
+    return render_template('report_show_clients_with_insurance.html', results=results)
 
 
 # TODO Проработать обновление статуса автомобиля ПРОДАН/В ОЖИДАНИИ/ДОСТУПЕН

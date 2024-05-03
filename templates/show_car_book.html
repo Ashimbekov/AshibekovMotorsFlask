@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Cards</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            height: 100%;
+        }
+        .card-img-top {
+            height: 400px; 
+            object-fit: cover;
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .card-text {
+            font-size: 1rem;
+            color: #555;
+        }
+        .card-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="mt-5">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="sort">Сортировать по:</label>
+                <select id="sort" class="form-control">
+                    <option value="">Не сортировать</option>
+                    <option value="price_asc" {% if sort_by == 'price_asc' %} selected {% endif %}>Цена (по возрастанию)</option>
+                    <option value="price_desc" {% if sort_by == 'price_desc' %} selected {% endif %}>Цена (по убыванию)</option>
+                    <option value="year_asc" {% if sort_by == 'year_asc' %} selected {% endif %}>Год (по возрастанию)</option>
+                    <option value="year_desc" {% if sort_by == 'year_desc' %} selected {% endif %}>Год (по убыванию)</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="filter">Фильтровать по бренду:</label>
+                <select id="filter" class="form-control">
+                    <option value="">Все бренды</option>
+                    <option value="Toyota" {% if filter_by == 'Toyota' %} selected {% endif %}>Toyota</option>
+                    <option value="BMW" {% if filter_by == 'BMW' %} selected {% endif %}>BMW</option>
+                    <!-- Добавьте другие варианты по мере необходимости -->
+                </select>
+            </div>
+
+        </div>
+        <div class="row" id="car-cards">
+            {% for car in cars %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ car[5] }}" class="card-img-top" alt="Car Image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ car[1] }} {{ car[2] }}</h5>
+                        <p class="card-text">Год: {{ car[3] }}</p>
+                        <p class="card-price">Цена: {{ '{:,.0f}'.format(car[4]).replace(',', ' ') }} тенге</p>
+                        <a href="/show_car_attributes/{{ car[0] }}" class="btn btn-primary">Показать атрибуты</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Обработчик изменения значения выпадающих списков
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', () => {
+                const sortBy = document.getElementById('sort').value;
+                const filterBy = document.getElementById('filter').value;
+
+                const url = `/show_cars_books?sort_by=${sortBy}&filter_by=${filterBy}`;
+
+                window.location.href = url;
+            });
+        });
+    </script>
+</body>
+</html>
